@@ -41,5 +41,18 @@ export async function createProduct(req,res){
 
 //get all products
 export async function getAllProducts(req,res){
+    try{
+        if(req.user!=null && req.user.isAdmin){ //if user is admin, return all products including unavailable products
+             const products=await Product.find() //find all products in the database
+            res.json(products) //send the products as a response
+            
+        }else{
+            const products=await Product.find({isAvailable:true}) //find only available products in the database
+            res.json(products)
+        }
+            
+    }catch(err){
+        res.status(500).json({message:err.message})
+    }
     
 }
