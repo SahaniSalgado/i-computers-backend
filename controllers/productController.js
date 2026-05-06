@@ -1,0 +1,45 @@
+// functions we create here : createProduct, read, update, deleteProduct
+import Product from "../models/product.js";
+
+export async function createProduct(req,res){
+
+    //check if user is authenticated or not - check if user has a token & user details or not
+    if(req.user==null){
+        res.status(401).json({message:"Unauthorized"})
+        return
+    }
+
+    //check if user is an admin or not; here if user not admin it become true.
+    if(!req.user.isAdmin){
+        res.status(403).json({message:"only admins can create products"})
+        return
+    }
+
+    //create a new product using the data from the request body
+    try{
+        //check if product with the same productId already exists in the database
+        //findOne - Eka product ekak hoyanawa
+        const exsistingProduct= await Product.findOne({productId:req.body.productId}) 
+
+        if(exsistingProduct != null){
+            res.status(400).json({message:"Product with the same productId already exists"})
+            return
+        }
+
+        //IF THERE IS NO EXISTING PRODUCT WITH THE SAME PRODUCTID, CREATE A NEW PRODUCT
+        const newProduct=new Product(req.body)
+
+        await newProduct.save() //save the product to the database
+        
+        res.json({message:"Product added successfully"})
+
+    }catch(err){
+        res.status(500).json({message:err.message})
+    }
+
+}
+
+//get all products
+export async function getAllProducts(req,res){
+    
+}
