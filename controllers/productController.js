@@ -45,7 +45,7 @@ export async function getAllProducts(req,res){
         if(req.user!=null && req.user.isAdmin){ //if user is admin, return all products including unavailable products
              const products=await Product.find() //find all products in the database
             res.json(products) //send the products as a response
-            
+
         }else{
             const products=await Product.find({isAvailable:true}) //find only available products in the database
             res.json(products)
@@ -55,4 +55,24 @@ export async function getAllProducts(req,res){
         res.status(500).json({message:err.message})
     }
     
+}
+
+//delete a product-only admin can delete a product
+export async function deleteProduct(req,res){
+    if(req.user!=null && req.user.isAdmin){  //if user is admin, allow to delete the product
+        try{
+            const product=await Product.findOne({productId:req.params.productId})  //find the product by productId
+            
+            if(product==null){
+                res.status(404).json({message:"Product not found"})
+                return
+            }
+            await Product.deleteOne({productId:req.params.productId}) //delete the product from the database
+            res.json({message:"Product deleted successfully"})
+        }catch(err){
+            res.status(500).json({message:err.message})
+        }
+    } else {
+        res.status(403).json({message:"Only admins can delete products"})
+    }
 }
