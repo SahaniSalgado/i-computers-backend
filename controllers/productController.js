@@ -1,4 +1,5 @@
 // functions we create here : createProduct, read, update, deleteProduct
+import e from "express";
 import Product from "../models/product.js";
 
 export async function createProduct(req,res){
@@ -93,4 +94,24 @@ export async function updateProduct(req,res){
     } else {
         res.status(403).json({message:"Only admins can update products"})
     }
+}
+
+//retrive only one product by productId
+export async function getProductById(req,res){
+    const product=await Product.findOne({productId:req.params.productId})
+
+    if(product==null){
+        res.status(404).json({message:"Product not found"})
+        return
+    }
+    if(product.isAvailable){
+        res.json(product)
+
+    }else{
+        if(req.user!=null && req.user.isAdmin){
+            res.json(product)
+        } else {
+            res.status(403).json({message:"Only admins can view unavailable products"})
+        }
+    }    
 }
