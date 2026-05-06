@@ -76,3 +76,21 @@ export async function deleteProduct(req,res){
         res.status(403).json({message:"Only admins can delete products"})
     }
 }
+
+//update a product
+export async function updateProduct(req,res){
+    if(req.user!=null && req.user.isAdmin){
+        try{
+            if(req.body.productId != null){
+                res.status(400).json({message:"ProductId cannot be updated"})
+                return
+            }
+            await Product.updateOne({productId:req.params.productId},req.body) //update the product in the database
+            res.json({message:"Product updated successfully"})
+        }catch(err){
+            res.status(500).json({message:err.message})
+        }
+    } else {
+        res.status(403).json({message:"Only admins can update products"})
+    }
+}
